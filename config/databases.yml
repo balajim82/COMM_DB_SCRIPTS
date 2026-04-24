@@ -1,0 +1,31 @@
+# CommVerse Database Migration Configuration
+#
+# scripts_path  — list of root folders in the git repo.
+#                 Each folder name is ALSO the target PostgreSQL schema.
+# subfolder_order — subfolders processed sequentially inside every schema folder.
+#                   Flyway runs once per subfolder so ordering is strictly enforced.
+# history_schema  — centralised Flyway metadata schema (created automatically).
+#                   Each schema+subfolder pair gets its own history table:
+#                   {schema}__{subfolder}  (e.g. SystemData__tables_scripts)
+#
+# Connection credentials (DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD)
+# come from environment variables — never stored here.
+
+database:
+  id: commverse_db
+  description: "Target database for migration"
+  git_repo: "https://github.com/balajim82/COMM_DB_SCRIPTS"
+  git_branch: "DB_SCRIPTS"
+
+  scripts_path:
+    - SystemData
+    - OrgData
+    - MasterData
+    - MarketData
+
+  subfolder_order:
+    - tables_scripts
+    - master_scripts
+    - objects_scripts
+
+  history_schema: "flyway_history_schema"

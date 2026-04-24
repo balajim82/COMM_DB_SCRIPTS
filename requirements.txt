@@ -1,0 +1,4 @@
+# Python dependencies for CommVerse DB Migration Framework
+# Install with: pip install -r requirements.txt
+
+PyYAML==6.0.2
