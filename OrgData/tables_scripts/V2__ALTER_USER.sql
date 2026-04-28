@@ -1,1 +1,1 @@
-ALTER TABLE table_name ADD COLUMN USR_DATA jsonb;
+ALTER TABLE users_details ADD COLUMN USR_DATA jsonb;
