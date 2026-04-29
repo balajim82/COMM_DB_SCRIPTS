@@ -18,6 +18,7 @@ database:
   git_branch: "DB_SCRIPTS"
 
   scripts_path:
+    - catalog
     - SystemData
     - OrgData
     - MasterData

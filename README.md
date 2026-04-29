@@ -155,6 +155,7 @@ database:
   git_branch: "DB_SCRIPTS"                      # Migration scripts branch
   
   scripts_path:                                 # Schemas to migrate (in order)
+    - catalog
     - SystemData
     - OrgData
     - MasterData
@@ -789,3 +790,17 @@ ORDER BY installed_rank;
 
 **UAT/PROD job stuck**
 → Waiting for reviewer approval. Go to **Actions → the running workflow → Review deployments → Approve**.
+
+To run Manually, we should use the below commands
+===============================================
+# Make the scripts executable (first time only)
+chmod +x run.sh scripts/*.sh
+
+# Validate first — checks DB connectivity + repo access before touching anything
+./run.sh --env dev --validate-only
+
+# Dry run — shows what migrations WOULD apply, makes zero changes
+./run.sh --env dev --dry-run
+
+# Apply migrations
+./run.sh --env dev
