@@ -1,6 +1,6 @@
 DO $$
 BEGIN
-    PERFORM util_deep_merge_jsonb(
+    PERFORM public.util_deep_merge_jsonb(
         'update',
         'SystemData',
         'SchedulerDiary',
