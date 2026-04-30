@@ -6,8 +6,7 @@ from pathlib import Path
 from config import settings
 from core.model_inspector import ModelInfo
 
-
-_COL_WIDTH = 36   # column-name alignment width
+_COL_WIDTH = 36  # column-name alignment width
 
 
 def _col_def(name: str, pg_type: str, nullable: bool, default: str = "") -> str:
@@ -15,6 +14,59 @@ def _col_def(name: str, pg_type: str, nullable: bool, default: str = "") -> str:
     not_null_str = " NOT NULL" if not nullable else ""
     default_str = f" DEFAULT {default}" if default else ""
     return f"    {name:<{_COL_WIDTH}} {pg_type}{not_null_str}{null_str}{default_str}"
+
+
+def _index_prefix(table_name: str) -> str:
+    """Lowercase table name with underscores removed, used as index name prefix."""
+    return table_name.lower().replace("_", "")
+
+
+def _generate_indexes(model_info: ModelInfo) -> str:
+    """Build CREATE INDEX statements for a table.
+
+    - One BTREE index per structural column (PK / partition).
+    - One GIN index on the `data` JSONB column.
+    - The primary-key unique index is created automatically by the PRIMARY KEY
+      constraint; it is documented below but not re-created explicitly.
+    """
+    table = model_info.table_name
+    prefix = _index_prefix(table)
+    lines: list[str] = []
+
+    lines.append("")
+    lines.append("-- ============================================================")
+    lines.append("-- Indexes")
+    lines.append("-- ============================================================")
+
+    # BTREE index per structural column (deduplicated, preserving declaration order)
+    seen: set[str] = set()
+    for col in model_info.structural_columns:
+        if col.name in seen:
+            continue
+        seen.add(col.name)
+        idx_name = f"idx_{prefix}_{col.name}"
+        lines.append(
+            f"CREATE INDEX IF NOT EXISTS {idx_name}"
+            f"\n    ON {table} USING BTREE ({col.name});"
+        )
+
+    # GIN index on the data JSONB column
+    gin_name = f"idx_{prefix}_data_gin"
+    lines.append(
+        f"CREATE INDEX IF NOT EXISTS {gin_name}"
+        f"\n    ON {table} USING GIN (data);"
+    )
+
+    # Document the auto-created primary key unique index
+    if model_info.pk_fields:
+        pk_cols = ", ".join(c.name for c in model_info.pk_fields)
+        tl = table.lower()
+        lines.append(
+            f"\n-- Unique index pk_{tl} on ({pk_cols}) is created automatically"
+            f"\n-- by the PRIMARY KEY constraint defined above."
+        )
+
+    return "\n".join(lines)
 
 
 def generate_create_table(model_info: ModelInfo) -> str:
@@ -27,10 +79,16 @@ def generate_create_table(model_info: ModelInfo) -> str:
     parts.append(f"-- ============================================================")
     parts.append(f"-- Table       : {table}")
     parts.append(f"-- Model       : {model_info.model_name}")
-    parts.append(f"-- PK          : {', '.join(c.name for c in model_info.pk_fields) or '(none)'}")
-    parts.append(f"-- Partition   : {', '.join(c.name for c in model_info.partition_fields) or '(none)'}")
+    parts.append(
+        f"-- PK          : {', '.join(c.name for c in model_info.pk_fields) or '(none)'}"
+    )
+    parts.append(
+        f"-- Partition   : {', '.join(c.name for c in model_info.partition_fields) or '(none)'}"
+    )
     if model_info.fk_fields:
-        parts.append(f"-- FK          : {', '.join(c.name for c in model_info.fk_fields)}")
+        parts.append(
+            f"-- FK          : {', '.join(c.name for c in model_info.fk_fields)}"
+        )
     for k, v in model_info.meta.items():
         parts.append(f"-- {k:<12}: {v}")
     parts.append(f"-- Fields      : {', '.join(f.name for f in model_info.all_fields)}")
@@ -48,7 +106,6 @@ def generate_create_table(model_info: ModelInfo) -> str:
     col_defs.append(_col_def("data", "JSONB", False, "'{}'"))
 
     # ── Audit columns ────────────────────────────────────────────────────
-    col_defs.append(_col_def("created_at", "TIMESTAMP WITH TIME ZONE", False, "NOW()"))
     col_defs.append(_col_def("updated_at", "TIMESTAMP WITH TIME ZONE", False, "NOW()"))
 
     # ── Primary key constraint ───────────────────────────────────────────
@@ -74,9 +131,7 @@ def generate_create_table(model_info: ModelInfo) -> str:
     if model_info.partition_fields:
         pf = model_info.partition_fields[0]
         ptype = (
-            "RANGE"
-            if ("TIMESTAMP" in pf.pg_type or "DATE" in pf.pg_type)
-            else "HASH"
+            "RANGE" if ("TIMESTAMP" in pf.pg_type or "DATE" in pf.pg_type) else "HASH"
         )
         parts.append(f") PARTITION BY {ptype} ({pf.name});")
     else:
@@ -90,6 +145,9 @@ def generate_create_table(model_info: ModelInfo) -> str:
         "\n-- All model fields stored in data (JSONB):\n"
         + "\n".join(f"--   {ln}" for ln in schema_comment.splitlines())
     )
+
+    # ── Indexes ───────────────────────────────────────────────────────────
+    parts.append(_generate_indexes(model_info))
 
     return "\n".join(parts)
 

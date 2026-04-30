@@ -17,6 +17,11 @@ class Settings(BaseSettings):
 
     SQL_OUTPUT_PATH: str = "./generated_sql"
 
+    # Path to the folder containing seed data JSON files (one file per entity).
+    # Each file must be named <entity_name>.json and follow the format:
+    #   {"data": [...], "schema_name": "...", "table_name": "..."}
+    SEED_DATA_PATH: str = "./seed_data"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 
