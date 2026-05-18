@@ -1,0 +1,1 @@
+This File Contains only Tables scripts Like (Table Create or Alter scripts or Drop table)
