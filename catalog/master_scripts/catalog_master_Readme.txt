@@ -1,1 +1,0 @@
-This File Contains only Master scripts Like (CRUD Operatrios Insert,Delete,update)
