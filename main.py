@@ -141,7 +141,7 @@ def run_metadata_generate() -> None:
 
     print('Fetching organisation codes from admin."Organizations" …')
     try:
-        org_codes = ["PT03"]  # fetch_org_codes()
+        org_codes = ["Admin"]  # fetch_org_codes()
     except RuntimeError as exc:
         print(f"[ERROR] {exc}")
         sys.exit(1)
@@ -206,7 +206,7 @@ def run_seed_data_insert() -> None:
 
     print('Fetching organisation codes from admin."Organizations" ...')
     try:
-        org_codes = ["PT03"]  # fetch_org_codes()
+        org_codes = ["Admin"]  # fetch_org_codes()
     except RuntimeError as exc:
         print(f"[ERROR] {exc}")
         sys.exit(1)

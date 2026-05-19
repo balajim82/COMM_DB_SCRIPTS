@@ -35,7 +35,7 @@ Delete:
         "op"        : "delete",
         "table_name": "PermResources",   # must match model_config["entity_name"]
         "pk_values" : {                  # one entry per primary key field
-            "org_code"     : "PT03",
+            "org_code"     : "Admin",
             "resource_code": "DATA_CATALOG",
         },
         "schema_name": "SystemData",     # optional — derived from model if absent
@@ -77,7 +77,7 @@ OPERATIONS: list[dict] = [
         "op": "delete",
         "table_name": "PermResourceOperations",
         "pk_values": {
-            "org_code": "PT03",
+            "org_code": "Admin",
             "resource_code": "DATA_CATALOG",
             "operation_code": "DELETE",
         },

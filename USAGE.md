@@ -244,12 +244,12 @@ org_codes = fetch_org_codes()   # reads from admin."Organizations"
 ```sql
 BEGIN;
 
--- org_code: PT03
+-- org_code: Admin
 INSERT INTO catalog."MetaDataDictionary"
     (db_name, org_code, meta_lake_code, entity_name,
      entity_type, entity_description, metadata, updated_at)
 VALUES
-    ('PT03', 'PT03', 'COGITO', 'PermResourceOperations',
+    ('Admin', 'Admin', 'COGITO', 'PermResourceOperations',
      'SystemData', 'Sub-entity: allowed operations per resource.',
      '{"meta_lake_code": "COGITO", "entity_name": "PermResourceOperations", ...}'::JSONB,
      NOW())
@@ -322,14 +322,14 @@ SEED_DATA_PATH=./seed_data
 ```sql
 BEGIN;
 
--- org_code: PT03 ----------------------------------------
+-- org_code: Admin ----------------------------------------
 
 INSERT INTO "SystemData"."PermResources" ("org_code", "resource_code", "data", "updated_at")
 VALUES
-    ('PT03',
+    ('Admin',
      'DATA_CATALOG',
      '{"resource_code": "DATA_CATALOG", "resource_name": "Data Catalog",
-       "description": "Data catalog management", "org_code": "PT03"}'::JSONB,
+       "description": "Data catalog management", "org_code": "Admin"}'::JSONB,
      NOW())
 ON CONFLICT ("org_code", "resource_code") DO UPDATE SET
     "data"       = EXCLUDED."data",
@@ -379,7 +379,7 @@ OPERATIONS: list[dict] = [
         },
         "p_append_keys"  : {},                  # keys to deep-merge/append
         "p_where_columns": ["org_code"],        # filter columns ([] = all rows)
-        "p_where_values" : ["PT03"],            # filter values
+        "p_where_values" : ["Admin"],            # filter values
     },
 ]
 ```
@@ -403,7 +403,7 @@ BEGIN
         }',
         '{}',
         ARRAY['org_code']::text[],
-        ARRAY['PT03']::text[]
+        ARRAY['Admin']::text[]
     );
 END $$;
 ```
@@ -435,7 +435,7 @@ OPERATIONS: list[dict] = [
         "op"        : "delete",
         "table_name": "PermResourceOperations",  # must match model_config["entity_name"]
         "pk_values" : {                          # one entry per primary key field
-            "org_code"      : "PT03",
+            "org_code"      : "Admin",
             "resource_code" : "DATA_CATALOG",
             "operation_code": "DELETE",
         },
@@ -458,7 +458,7 @@ OPERATIONS: list[dict] = [
 -- DELETE from "SystemData"."PermResourceOperations"
 -- Primary keys (from PermResourceOperationModel): org_code, resource_code, operation_code
 DELETE FROM "SystemData"."PermResourceOperations"
-WHERE "org_code" = 'PT03'
+WHERE "org_code" = 'Admin'
   AND "resource_code" = 'DATA_CATALOG'
   AND "operation_code" = 'DELETE';
 ```
