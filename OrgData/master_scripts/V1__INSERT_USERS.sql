@@ -1,1 +1,0 @@
-INSERT INTO users_details (usr_id, usr_name) VALUES (2,'balaji');
